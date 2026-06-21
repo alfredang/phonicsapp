@@ -53,4 +53,17 @@ struct Phoneme: Identifiable, Hashable {
 
     /// What we feed the speech engine to demonstrate the isolated sound.
     var spokenSound: String { exampleWords.first ?? grapheme }
+
+    /// The bare IPA symbols (no slashes / arrows) used to synthesize the *isolated
+    /// sound* of this grapheme via IPA-notation speech — e.g. "/eɪ/" → "eɪ".
+    var soundIPA: String {
+        if let range = ipa.range(of: "/[^/]+/", options: .regularExpression) {
+            return String(ipa[range]).replacingOccurrences(of: "/", with: "")
+        }
+        return ipa.replacingOccurrences(of: "/", with: "")
+            .trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Stable key for the "now playing the sound" highlight (distinct from word playback).
+    var soundKey: String { "sound-\(id.uuidString)" }
 }

@@ -39,7 +39,10 @@ final class SpeechManager: NSObject, ObservableObject {
             synthesizer.stopSpeaking(at: .immediate)
         }
 
-        let utterance = AVSpeechUtterance(string: text)
+        // Emotions reshape the sentence's punctuation so the synthesizer applies real
+        // prosody (rising questions, excited bursts, trailing sadness).
+        let spoken = emotion?.render(text) ?? text
+        let utterance = AVSpeechUtterance(string: spoken)
         utterance.voice = preferredVoice(for: accent)
         utterance.rate = emotion?.rate ?? Float(rate ?? 0.48)
         utterance.pitchMultiplier = emotion?.pitchMultiplier ?? 1.0
@@ -48,6 +51,30 @@ final class SpeechManager: NSObject, ObservableObject {
         utterance.postUtteranceDelay = 0.05
 
         nowPlaying = text
+        synthesizer.speak(utterance)
+    }
+
+    /// Speak the *isolated sound* of a grapheme using IPA notation (e.g. play "/eɪ/",
+    /// not the word "play"). Falls back to reading the IPA letters if the platform
+    /// voice can't honour the notation.
+    func speakSound(ipa rawIPA: String, accent: Accent, key: String) {
+        let ipa = rawIPA
+            .replacingOccurrences(of: "/", with: "")
+            .trimmingCharacters(in: .whitespaces)
+        guard !ipa.isEmpty else { return }
+        if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
+
+        let attributed = NSMutableAttributedString(string: ipa)
+        attributed.addAttribute(.accessibilitySpeechIPANotation,
+                                value: ipa,
+                                range: NSRange(location: 0, length: (ipa as NSString).length))
+        let utterance = AVSpeechUtterance(attributedString: attributed)
+        utterance.voice = preferredVoice(for: accent)
+        utterance.rate = 0.4               // slower — an isolated sound, not a word
+        utterance.pitchMultiplier = 1.0
+        utterance.postUtteranceDelay = 0.05
+
+        nowPlaying = key
         synthesizer.speak(utterance)
     }
 
@@ -65,16 +92,21 @@ final class SpeechManager: NSObject, ObservableObject {
             ?? .female
         let target: AVSpeechSynthesisVoiceGender = (desired == .male) ? .male : .female
 
-        let langVoices = AVSpeechSynthesisVoice.speechVoices()
+        // Only voices that actually match this accent's region. Crucially we never fall
+        // back to a different region's default (which made en-GB and en-US sound alike) —
+        // if no exact-region voice exists we still pin the language so the OS supplies the
+        // correct accent rather than the device default.
+        let regionVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language == accent.languageCode }
-        // Use gender-matching voices if the device has any; otherwise fall back to all.
-        let gendered = langVoices.filter { $0.gender == target }
-        let pool = gendered.isEmpty ? langVoices : gendered
 
-        // Prefer enhanced/premium quality when the user has downloaded one.
-        if let best = pool.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first {
+        let gendered = regionVoices.filter { $0.gender == target }
+        let pool = gendered.isEmpty ? regionVoices : gendered
+
+        // Prefer premium/enhanced quality (more distinct, richer accent) when available.
+        if let best = pool.max(by: { $0.quality.rawValue < $1.quality.rawValue }) {
             return best
         }
+        // Last resort: construct directly from the language code (still the right accent).
         return AVSpeechSynthesisVoice(language: accent.languageCode)
     }
 }

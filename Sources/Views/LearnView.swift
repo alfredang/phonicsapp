@@ -116,8 +116,8 @@ struct PhonemeRow: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 4)
-            SpeakButton(isActive: speech.nowPlaying == phoneme.spokenSound, tint: tint) {
-                speech.speak(phoneme.spokenSound, accent: settings.accent, rate: settings.speechRate)
+            SpeakButton(isActive: speech.nowPlaying == phoneme.soundKey, tint: tint) {
+                speech.speakSound(ipa: phoneme.ipa, accent: settings.accent, key: phoneme.soundKey)
             }
         }
         .appCard()

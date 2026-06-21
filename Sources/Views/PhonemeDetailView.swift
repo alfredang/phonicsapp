@@ -21,7 +21,7 @@ struct PhonemeDetailView: View {
                     Pill(text: phoneme.category.rawValue, color: tint.opacity(0.14), textColor: tint)
 
                     Button {
-                        speech.speak(phoneme.spokenSound, accent: settings.accent, rate: settings.speechRate)
+                        speech.speakSound(ipa: phoneme.ipa, accent: settings.accent, key: phoneme.soundKey)
                     } label: {
                         Label("Hear the sound", systemImage: "speaker.wave.2.fill")
                             .font(.headline)
