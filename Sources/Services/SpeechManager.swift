@@ -14,6 +14,7 @@ final class SpeechManager: NSObject, ObservableObject {
     @Published private(set) var nowPlaying: String?
 
     private let synthesizer = AVSpeechSynthesizer()
+    private var audioPlayer: AVAudioPlayer?
 
     override init() {
         super.init()
@@ -34,10 +35,12 @@ final class SpeechManager: NSObject, ObservableObject {
                emotion: Emotion? = nil,
                rate: Double? = nil) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        // Replace any current utterance immediately.
+        // Replace any current utterance / clip immediately.
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
         }
+        audioPlayer?.stop()
+        audioPlayer = nil
 
         // Emotions reshape the sentence's punctuation so the synthesizer applies real
         // prosody (rising questions, excited bursts, trailing sadness).
@@ -74,8 +77,36 @@ final class SpeechManager: NSObject, ObservableObject {
 
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
+        audioPlayer?.stop()
+        audioPlayer = nil
         nowPlaying = nil
         isSpeaking = false
+    }
+
+    /// Play the isolated sound of a phoneme. Prefers a pre-rendered, accent-correct audio
+    /// clip bundled in the app; falls back to the respelling TTS cue if a clip is missing.
+    func speakPhoneme(_ phoneme: Phoneme, accent: Accent) {
+        synthesizer.stopSpeaking(at: .immediate)
+        audioPlayer?.stop()
+        audioPlayer = nil
+
+        let suffix = (accent == .british) ? "uk" : "us"
+        let code = phoneme.audioCode
+        let url = (code.isEmpty ? nil :
+            Bundle.main.url(forResource: "\(code)_\(suffix)", withExtension: "m4a"))
+            ?? (code.isEmpty ? nil :
+            Bundle.main.url(forResource: "\(code)_us", withExtension: "m4a"))
+
+        if let url, let player = try? AVAudioPlayer(contentsOf: url) {
+            player.delegate = self
+            audioPlayer = player
+            nowPlaying = phoneme.soundKey
+            isSpeaking = true
+            player.play()
+            return
+        }
+        // No clip → fall back to the respelling cue.
+        speakSound(text: phoneme.soundSpelling, accent: accent, key: phoneme.soundKey)
     }
 
     /// Pick the best installed voice for the accent and the user's gender preference.
@@ -102,6 +133,12 @@ final class SpeechManager: NSObject, ObservableObject {
         }
         // Last resort: construct directly from the language code (still the right accent).
         return AVSpeechSynthesisVoice(language: accent.languageCode)
+    }
+}
+
+extension SpeechManager: AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        DispatchQueue.main.async { self.isSpeaking = false; self.nowPlaying = nil }
     }
 }
 

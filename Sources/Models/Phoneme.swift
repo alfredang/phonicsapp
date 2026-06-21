@@ -75,6 +75,23 @@ struct Phoneme: Identifiable, Hashable {
         Phoneme.respelling[soundIPA] ?? grapheme
     }
 
+    /// Filename stem of the pre-rendered audio clip for this sound (per accent:
+    /// "<code>_uk.m4a" / "<code>_us.m4a"). Empty when no clip exists (→ TTS fallback).
+    /// Keyed on IPA so every grapheme sharing a sound reuses the same clip.
+    var audioCode: String { Phoneme.audioCodes[soundIPA] ?? "" }
+
+    /// IPA → audio-clip code. Kept in sync with tools/generate_phoneme_audio.py.
+    static let audioCodes: [String: String] = [
+        "b": "b", "d": "d", "ɡ": "g", "k": "k", "p": "p", "t": "t", "dʒ": "j", "tʃ": "ch",
+        "h": "h", "w": "w", "j": "y", "f": "f", "v": "v", "s": "s", "z": "z", "ʃ": "sh",
+        "m": "m", "n": "n", "l": "l", "r": "r", "θ": "th", "ð": "dh", "ŋ": "ng",
+        "æ": "ae", "ɛ": "eh", "ɪ": "ih", "ɒ": "aa", "ʌ": "ah",
+        "eɪ": "ay", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "yoo", "uː": "oo",
+        "ɔɪ": "oy", "aʊ": "ow", "ɔː": "aw", "ɑːr": "ar", "ɔːr": "or", "ɜːr": "er",
+        "bl": "bl", "kl": "cl", "fl": "fl", "ɡr": "gr", "tr": "tr",
+        "st": "st", "sp": "sp", "sn": "sn", "str": "str"
+    ]
+
     /// IPA → engine-friendly respelling. Multiple graphemes share an IPA (ai/ay/a_e → /eɪ/).
     static let respelling: [String: String] = [
         // Consonants — stops/affricates take a light schwa; continuants are stretched.
