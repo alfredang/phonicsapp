@@ -103,11 +103,11 @@ struct Phoneme: Identifiable, Hashable {
         // Short vowels (clipped — inherently approximate in isolation).
         "æ": "aah", "ɛ": "eh", "ɪ": "ih", "ɒ": "aw", "ʌ": "uh",
         // Long vowels & vowel teams.
-        "eɪ": "ay", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "yoo", "uː": "oo",
+        "eɪ": "ay", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "you", "uː": "oo",
         // Diphthongs.
-        "ɔɪ": "oy", "aʊ": "ow", "ɔː": "aw",
-        // R-controlled.
-        "ɑːr": "are", "ɔːr": "or", "ɜːr": "er",
+        "ɔɪ": "oy", "aʊ": "ow", "ɔː": "awe",
+        // R-controlled (real-word cues read most accurately).
+        "ɑːr": "are", "ɔːr": "ore", "ɜːr": "er",
         // Consonant blends — said as the cluster onset.
         "bl": "bluh", "kl": "cluh", "fl": "fluh", "ɡr": "gruh", "tr": "truh",
         "st": "stuh", "sp": "spuh", "sn": "snuh", "str": "struh"

@@ -113,11 +113,12 @@ final class SpeechManager: NSObject, ObservableObject {
         synthesizer.speak(utterance)
     }
 
-    /// Demonstrate a phoneme's sound. Isolated phoneme audio isn't available cleanly or
-    /// licensably, so we play a real human pronunciation of the phoneme's first example
-    /// word ("/iː/ as in 'eat'") — the standard, correct way phonics is taught aloud.
+    /// Demonstrate a phoneme's sound via TTS, fed a "hidden" cue word/letter (not shown on
+    /// screen) chosen so the engine says the target sound as closely as possible — e.g.
+    /// /juː/ → "you", /aɪ/ → "eye", /ɑːr/ → "are". (Temporary: TTS can't fully isolate
+    /// short vowels and stops; real recordings remain the only exact route.)
     func speakPhoneme(_ phoneme: Phoneme, accent: Accent) {
-        speakWord(phoneme.spokenSound, accent: accent, key: phoneme.soundKey)
+        speakSound(text: phoneme.soundSpelling, accent: accent, key: phoneme.soundKey)
     }
 
     /// Pick the best installed voice for the accent and the user's gender preference.
