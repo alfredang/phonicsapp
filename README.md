@@ -1,10 +1,10 @@
 # Phonics — Pronunciation Trainer for Adults
 
 A native iOS (SwiftUI) app that helps adults learn English **pronunciation and phonics**.
-Tap any sound, word, rule, or sentence to hear it spoken with on-device voice-over in a
-**British** or **American** accent — fully offline.
+Tap any sound, word, rule, or sentence to hear it spoken in a **British** or **American**
+accent — fully offline.
 
-![Learn tab](screenshots/01-learn.png)
+![Phonics Pronunciation Coach — Learn tab](screenshot.png)
 
 ## Features
 
@@ -19,19 +19,23 @@ Tap any sound, word, rule, or sentence to hear it spoken with on-device voice-ov
     **sentence drills**.
 - **Rules** — the exception/irregular spellings phonics can't predict: silent letters, the many
   sounds of *ough*, soft c/g, *i-before-e*, tricky sight words, the schwa, and doubling/drop-e.
-- **Accent picker** — switch between 🇬🇧 British (en-GB) and 🇺🇸 American (en-US) anywhere; the
-  choice is persisted.
+- **Accent + voice** — switch between 🇬🇧 British (en-GB) and 🇺🇸 American (en-US) anywhere, and
+  pick a **female or male** voice in Settings; choices are persisted.
 - **Feedback** — send a note straight to the team via WhatsApp.
-- **About** — app info, developer, learning reference, and version.
+- **About** — app info, developer, learning reference, audio attribution, and version.
 
 ## Voice-over
 
-Speech uses Apple's on-device `AVSpeechSynthesizer`, which ships genuine **en-GB** and **en-US**
-voices — so accent selection is real and works without a network. Emotion presets map onto the
-utterance's `rate`, `pitchMultiplier`, `volume`, and delay.
+- **Words** — example words, minimal pairs, and rule examples play **real human recordings**
+  sourced from Wiktionary / Wikimedia Commons (CC BY-SA), bundled for offline use, with an
+  Apple TTS fallback for any word without a recording.
+- **Phoneme sounds** — "Hear the sound" demonstrates a phoneme via `AVSpeechSynthesizer` fed a
+  hidden pseudo-word cue tuned per sound (e.g. /iː/ → "ee", /eɪ/ → "ai") so the engine produces
+  the isolated sound as closely as it can.
+- **Intonation & Emotion** — emotion presets reshape the utterance's `rate`, `pitchMultiplier`,
+  `volume`, delay, and punctuation so the synthesizer applies real rising/falling prosody.
 
-> A future version can swap the engine for [Kyutai Pocket-TTS](https://kyutai.org/pocket-tts-technical-report)
-> behind the same `SpeechManager.speak(...)` interface without touching any view.
+Audio attribution is shown in the in-app **About** tab as required by the CC BY-SA license.
 
 ## Project structure
 
