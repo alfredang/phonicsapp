@@ -57,14 +57,22 @@ final class SpeechManager: NSObject, ObservableObject {
         isSpeaking = false
     }
 
-    /// Pick the best installed voice for the accent. Prefers a known premium/enhanced
-    /// named voice, then any voice matching the language, then the default.
+    /// Pick the best installed voice for the accent and the user's gender preference.
+    /// Filters by language, then by gender when matching voices exist, then by quality.
+    /// (Gender is read from the shared defaults so call sites don't need to thread it.)
     private func preferredVoice(for accent: Accent) -> AVSpeechSynthesisVoice? {
-        let voices = AVSpeechSynthesisVoice.speechVoices()
+        let desired = VoiceGender(rawValue: UserDefaults.standard.string(forKey: "voiceGender") ?? "")
+            ?? .female
+        let target: AVSpeechSynthesisVoiceGender = (desired == .male) ? .male : .female
+
+        let langVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language == accent.languageCode }
+        // Use gender-matching voices if the device has any; otherwise fall back to all.
+        let gendered = langVoices.filter { $0.gender == target }
+        let pool = gendered.isEmpty ? langVoices : gendered
 
         // Prefer enhanced/premium quality when the user has downloaded one.
-        if let best = voices.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first {
+        if let best = pool.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first {
             return best
         }
         return AVSpeechSynthesisVoice(language: accent.languageCode)

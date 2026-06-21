@@ -31,14 +31,35 @@ enum Accent: String, CaseIterable, Identifiable {
     }
 }
 
+/// The voice gender the speech engine should prefer when a matching voice exists.
+enum VoiceGender: String, CaseIterable, Identifiable {
+    case female = "Female"
+    case male   = "Male"
+
+    var id: String { rawValue }
+
+    var systemImage: String {
+        switch self {
+        case .female: return "person.fill"
+        case .male:   return "person.fill"
+        }
+    }
+}
+
 /// App-wide preferences, persisted via @AppStorage.
 final class AppSettings: ObservableObject {
     @AppStorage("accent") private var accentRaw: String = Accent.british.rawValue
+    @AppStorage("voiceGender") private var voiceGenderRaw: String = VoiceGender.female.rawValue
     @AppStorage("speechRate") var speechRate: Double = 0.48   // AVSpeechUtterance scale
     @AppStorage("hasSeenWelcome") var hasSeenWelcome: Bool = false
 
     var accent: Accent {
         get { Accent(rawValue: accentRaw) ?? .british }
         set { objectWillChange.send(); accentRaw = newValue.rawValue }
+    }
+
+    var voiceGender: VoiceGender {
+        get { VoiceGender(rawValue: voiceGenderRaw) ?? .female }
+        set { objectWillChange.send(); voiceGenderRaw = newValue.rawValue }
     }
 }

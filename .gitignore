@@ -31,3 +31,7 @@ fastlane/Preview.html
 *.mobileprovision
 *.cer
 .env
+
+# local capture/intermediate
+shots/
+.playwright-mcp/

@@ -59,6 +59,30 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Voice") {
+                    ForEach(VoiceGender.allCases) { gender in
+                        Button {
+                            settings.voiceGender = gender
+                            speech.speak("Hello, this is the \(gender.rawValue.lowercased()) voice.",
+                                         accent: settings.accent)
+                        } label: {
+                            HStack {
+                                Image(systemName: gender == .female ? "person.crop.circle" : "person.crop.circle.fill")
+                                    .foregroundStyle(Theme.secondary)
+                                Text(gender.rawValue).foregroundStyle(Theme.ink)
+                                Spacer()
+                                if settings.voiceGender == gender {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Theme.primary)
+                                }
+                            }
+                        }
+                    }
+                    Text("Uses a \(settings.voiceGender.rawValue.lowercased()) \(settings.accent.subtitle) voice when your device has one installed.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.mutedInk)
+                }
+
                 Section("Speaking speed") {
                     VStack(alignment: .leading) {
                         Slider(value: $settings.speechRate, in: 0.30...0.60, step: 0.02) {
