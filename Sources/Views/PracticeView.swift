@@ -142,7 +142,7 @@ struct MinimalPairsView: View {
 
     private func wordTile(_ word: String) -> some View {
         Button {
-            speech.speak(word, accent: settings.accent, rate: settings.speechRate)
+            speech.speakWord(word, accent: settings.accent)
         } label: {
             HStack(spacing: 8) {
                 Text(word)

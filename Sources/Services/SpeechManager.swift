@@ -83,30 +83,41 @@ final class SpeechManager: NSObject, ObservableObject {
         isSpeaking = false
     }
 
-    /// Play the isolated sound of a phoneme. Prefers a pre-rendered, accent-correct audio
-    /// clip bundled in the app; falls back to the respelling TTS cue if a clip is missing.
-    func speakPhoneme(_ phoneme: Phoneme, accent: Accent) {
+    /// Play a real human recording of `word` (bundled from Wiktionary / Wikimedia Commons),
+    /// preferring the chosen accent and falling back to the other accent, then to TTS.
+    /// `key` drives the "now playing" highlight (defaults to the word itself).
+    func speakWord(_ word: String, accent: Accent, key: String? = nil) {
         synthesizer.stopSpeaking(at: .immediate)
         audioPlayer?.stop()
         audioPlayer = nil
 
-        let suffix = (accent == .british) ? "uk" : "us"
-        let code = phoneme.audioCode
-        let url = (code.isEmpty ? nil :
-            Bundle.main.url(forResource: "\(code)_\(suffix)", withExtension: "m4a"))
-            ?? (code.isEmpty ? nil :
-            Bundle.main.url(forResource: "\(code)_us", withExtension: "m4a"))
+        let base = word.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let order = (accent == .british) ? ["uk", "us", "au"] : ["us", "uk", "au"]
+        let url = order.lazy
+            .compactMap { Bundle.main.url(forResource: "\(base)_\($0)", withExtension: "m4a") }
+            .first
 
         if let url, let player = try? AVAudioPlayer(contentsOf: url) {
             player.delegate = self
             audioPlayer = player
-            nowPlaying = phoneme.soundKey
+            nowPlaying = key ?? word
             isSpeaking = true
             player.play()
             return
         }
-        // No clip → fall back to the respelling cue.
-        speakSound(text: phoneme.soundSpelling, accent: accent, key: phoneme.soundKey)
+        // No recording for this word → synthesize it.
+        let utterance = AVSpeechUtterance(string: word)
+        utterance.voice = preferredVoice(for: accent)
+        utterance.rate = 0.46
+        nowPlaying = key ?? word
+        synthesizer.speak(utterance)
+    }
+
+    /// Demonstrate a phoneme's sound. Isolated phoneme audio isn't available cleanly or
+    /// licensably, so we play a real human pronunciation of the phoneme's first example
+    /// word ("/iː/ as in 'eat'") — the standard, correct way phonics is taught aloud.
+    func speakPhoneme(_ phoneme: Phoneme, accent: Accent) {
+        speakWord(phoneme.spokenSound, accent: accent, key: phoneme.soundKey)
     }
 
     /// Pick the best installed voice for the accent and the user's gender preference.

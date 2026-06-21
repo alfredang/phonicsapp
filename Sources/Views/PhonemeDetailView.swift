@@ -54,7 +54,7 @@ struct PhonemeDetailView: View {
                                 .foregroundStyle(Theme.ink)
                             Spacer()
                             SpeakButton(isActive: speech.nowPlaying == word, tint: tint) {
-                                speech.speak(word, accent: settings.accent, rate: settings.speechRate)
+                                speech.speakWord(word, accent: settings.accent)
                             }
                         }
                         if word != phoneme.exampleWords.last { Divider() }

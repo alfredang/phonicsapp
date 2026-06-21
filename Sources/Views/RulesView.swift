@@ -72,7 +72,7 @@ struct RuleDetailView: View {
                             }
                             Spacer(minLength: 8)
                             SpeakButton(isActive: speech.nowPlaying == ex.word, tint: Theme.highlight) {
-                                speech.speak(ex.word, accent: settings.accent, rate: settings.speechRate)
+                                speech.speakWord(ex.word, accent: settings.accent)
                             }
                         }
                         if ex.id != rule.examples.last?.id { Divider() }

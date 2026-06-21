@@ -78,9 +78,15 @@ struct AboutView: View {
                         Text("VOICE-OVER")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.mutedInk)
-                        Text("Speech uses Apple's on-device en-GB / en-US voices and works offline. No account, no tracking.")
+                        Text("Word pronunciations are real human recordings from Wiktionary / Wikimedia Commons (CC BY-SA), bundled for offline use. Other speech uses Apple's on-device en-GB / en-US voices. No account, no tracking.")
                             .font(.footnote)
                             .foregroundStyle(Theme.mutedInk)
+                        Link(destination: URL(string: "https://en.wiktionary.org")!) {
+                            Label("Wiktionary pronunciation audio", systemImage: "speaker.wave.2")
+                                .font(.footnote)
+                                .foregroundStyle(Theme.secondary)
+                        }
+                        .padding(.top, 2)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .appCard()
