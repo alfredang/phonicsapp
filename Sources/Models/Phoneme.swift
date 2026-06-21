@@ -103,7 +103,7 @@ struct Phoneme: Identifiable, Hashable {
         // Short vowels (clipped — inherently approximate in isolation).
         "æ": "aah", "ɛ": "eh", "ɪ": "ih", "ɒ": "aw", "ʌ": "uh",
         // Long vowels & vowel teams.
-        "eɪ": "ay", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "you", "uː": "oo",
+        "eɪ": "ai", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "you", "uː": "oo",
         // Diphthongs.
         "ɔɪ": "oy", "aʊ": "ow", "ɔː": "awe",
         // R-controlled (real-word cues read most accurately).
