@@ -54,8 +54,7 @@ struct Phoneme: Identifiable, Hashable {
     /// What we feed the speech engine to demonstrate the isolated sound.
     var spokenSound: String { exampleWords.first ?? grapheme }
 
-    /// The bare IPA symbols (no slashes / arrows) used to synthesize the *isolated
-    /// sound* of this grapheme via IPA-notation speech — e.g. "/eɪ/" → "eɪ".
+    /// The bare IPA symbols (no slashes / arrows) — e.g. "/eɪ/" → "eɪ".
     var soundIPA: String {
         if let range = ipa.range(of: "/[^/]+/", options: .regularExpression) {
             return String(ipa[range]).replacingOccurrences(of: "/", with: "")
@@ -66,4 +65,34 @@ struct Phoneme: Identifiable, Hashable {
 
     /// Stable key for the "now playing the sound" highlight (distinct from word playback).
     var soundKey: String { "sound-\(id.uuidString)" }
+
+    /// A respelling that the speech engine pronounces as this *isolated phoneme*.
+    /// AVSpeechSynthesizer does not reliably honour raw IPA notation, so we feed it a
+    /// plain-text cue keyed on the phoneme's IPA (e.g. /iː/ → "ee", /tʃ/ → "chuh").
+    /// Stretchy continuants are doubled; stops/affricates take a light "-uh" the way
+    /// phonics is taught aloud. Falls back to the grapheme if unmapped.
+    var soundSpelling: String {
+        Phoneme.respelling[soundIPA] ?? grapheme
+    }
+
+    /// IPA → engine-friendly respelling. Multiple graphemes share an IPA (ai/ay/a_e → /eɪ/).
+    static let respelling: [String: String] = [
+        // Consonants — stops/affricates take a light schwa; continuants are stretched.
+        "b": "buh", "d": "duh", "ɡ": "guh", "g": "guh", "k": "kuh", "p": "puh", "t": "tuh",
+        "dʒ": "juh", "tʃ": "chuh",
+        "f": "fuh", "v": "vuh", "h": "huh", "w": "wuh", "j": "yuh", "r": "ruh", "l": "luh",
+        "s": "sss", "z": "zzz", "m": "mmm", "n": "nnn", "ʃ": "shh", "ŋ": "ung",
+        "θ": "thh", "ð": "thuh",
+        // Short vowels (clipped — inherently approximate in isolation).
+        "æ": "aah", "ɛ": "eh", "ɪ": "ih", "ɒ": "aw", "ʌ": "uh",
+        // Long vowels & vowel teams.
+        "eɪ": "ay", "iː": "ee", "aɪ": "eye", "oʊ": "oh", "juː": "yoo", "uː": "oo",
+        // Diphthongs.
+        "ɔɪ": "oy", "aʊ": "ow", "ɔː": "aw",
+        // R-controlled.
+        "ɑːr": "are", "ɔːr": "or", "ɜːr": "er",
+        // Consonant blends — said as the cluster onset.
+        "bl": "bluh", "kl": "cluh", "fl": "fluh", "ɡr": "gruh", "tr": "truh",
+        "st": "stuh", "sp": "spuh", "sn": "snuh", "str": "struh"
+    ]
 }

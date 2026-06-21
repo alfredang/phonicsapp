@@ -54,23 +54,17 @@ final class SpeechManager: NSObject, ObservableObject {
         synthesizer.speak(utterance)
     }
 
-    /// Speak the *isolated sound* of a grapheme using IPA notation (e.g. play "/eɪ/",
-    /// not the word "play"). Falls back to reading the IPA letters if the platform
-    /// voice can't honour the notation.
-    func speakSound(ipa rawIPA: String, accent: Accent, key: String) {
-        let ipa = rawIPA
-            .replacingOccurrences(of: "/", with: "")
-            .trimmingCharacters(in: .whitespaces)
-        guard !ipa.isEmpty else { return }
+    /// Speak the *isolated sound* of a grapheme (e.g. /iː/), using a respelling the engine
+    /// pronounces correctly — not the example word, and not raw IPA (which the on-device
+    /// voices don't reliably honour). `text` is `Phoneme.soundSpelling`.
+    func speakSound(text: String, accent: Accent, key: String) {
+        let cue = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cue.isEmpty else { return }
         if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
 
-        let attributed = NSMutableAttributedString(string: ipa)
-        attributed.addAttribute(.accessibilitySpeechIPANotation,
-                                value: ipa,
-                                range: NSRange(location: 0, length: (ipa as NSString).length))
-        let utterance = AVSpeechUtterance(attributedString: attributed)
+        let utterance = AVSpeechUtterance(string: cue)
         utterance.voice = preferredVoice(for: accent)
-        utterance.rate = 0.4               // slower — an isolated sound, not a word
+        utterance.rate = 0.38              // slower — an isolated sound, not a word
         utterance.pitchMultiplier = 1.0
         utterance.postUtteranceDelay = 0.05
 
