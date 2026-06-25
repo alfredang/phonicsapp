@@ -4,6 +4,13 @@ A native iOS (SwiftUI) app that helps adults learn English **pronunciation and p
 Tap any sound, word, rule, or sentence to hear it spoken in a **British** or **American**
 accent — fully offline.
 
+> 🎉 **Now live on the App Store!**
+> [**Phonics Pronunciation Coach**](https://apps.apple.com/us/app/phonics-pronunciation-coach/id6782569616)
+
+<a href="https://apps.apple.com/us/app/phonics-pronunciation-coach/id6782569616">
+  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="48">
+</a>
+
 ![Phonics Pronunciation Coach — Learn tab](screenshot.png)
 
 ## Features
@@ -62,6 +69,7 @@ xcodebuild -project Phonics.xcodeproj -scheme Phonics \
 ```
 
 - **Min iOS:** 17.0 · **Devices:** iPhone & iPad · **Frameworks:** SwiftUI, AVFoundation
+- **App Store:** [id6782569616](https://apps.apple.com/us/app/phonics-pronunciation-coach/id6782569616) — live
 
 ## Reference
 
